@@ -45,7 +45,9 @@ module.exports = function (size, ifile, option) {
 
         md5_mapping[filename] = md5_filename;//add mappinig to json;
 
-        var l_filename = path.posix.join(levelDir,filename);
+        var basic_filename = path.posix.join(levelDir,filename);
+        var l_filename = basic_filename.slice(0, basic_filename.lastIndexOf('.'));
+        var l_filename_ext = basic_filename.slice(basic_filename.lastIndexOf('.'));
         var l_md5_filename = path.posix.join(levelDir,md5_filename);
 
         if(Object.prototype.toString.call(ifile) == "[object Array]"){
@@ -53,9 +55,8 @@ module.exports = function (size, ifile, option) {
                 i_ifile && glob(i_ifile,function(err, i_files){
                     if(err) return console.log(err);
                     i_files.forEach(function(i_ilist){
-                        var result = fs.readFileSync(i_ilist,'utf8').replace(new RegExp('/' + l_filename + '[^a-zA-Z_0-9].*?' ,"g"), function(sfile_name){
-                            return sfile_name.replace(l_filename,l_md5_filename)
-                        });
+                        var result = fs.readFileSync(i_ilist,'utf8')
+                            .replace(new RegExp(l_filename + '[a-zA-Z_0-9]+\\' + l_filename_ext, 'g'), l_md5_filename);
                         fs.writeFileSync(i_ilist, result, 'utf8');
                     })
                 })
@@ -64,9 +65,8 @@ module.exports = function (size, ifile, option) {
             ifile && glob(ifile,function(err, files){
                 if(err) return console.log(err);
                 files.forEach(function(ilist){
-                    var result = fs.readFileSync(ilist,'utf8').replace(new RegExp('/' + l_filename + '[^a-zA-Z_0-9].*?' ,"g"), function(sfile_name){
-                        return sfile_name.replace(l_filename,l_md5_filename)
-                    });
+                    var result = fs.readFileSync(ilist,'utf8')
+                        .replace(new RegExp(l_filename + '[a-zA-Z_0-9]+\\' + l_filename_ext, 'g'), l_md5_filename);
                     fs.writeFileSync(ilist, result, 'utf8');
                 })
             })
@@ -96,7 +96,7 @@ function getLevelDir(dir,level){
     if(dirs && dirs.length >= level){
         return dirs.slice(dirs.length - level)
     }else{
-        return []
+        return ""
     }
 }
 
